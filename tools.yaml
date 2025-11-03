@@ -1,11 +1,78 @@
-redis-main:
-  kind: redis
-  address:
-    - ${REDIS_HOST}:${REDIS_PORT}
-  password: ${REDIS_PASSWORD}
+# Configurazione genai-toolbox
 
-falkordb-main:
-  kind: redis
-  address:
-    - ${FALKOR_HOST}:${FALKOR_PORT}
-  password: ${FALKOR_PASSWORD}
+sources:
+  postgres-memory:
+    type: postgres
+    config:
+      host: localhost
+      port: 5432
+      database: memory_db
+      user: user
+      password: password
+  redis-main:
+    type: redis
+    config:
+      host: localhost
+      port: 6379
+  falkordb-main:
+    type: falkordb
+    config:
+      endpoint: https://falkordb.example.com
+      api_key: your_api_key
+
+tools:
+  - name: tool1
+    type: api
+    config:
+      endpoint: https://api.tool1.com
+  - name: tool2
+    type: api
+    config:
+      endpoint: https://api.tool2.com
+  - name: tool3
+    type: api
+    config:
+      endpoint: https://api.tool3.com
+  - name: tool4
+    type: api
+    config:
+      endpoint: https://api.tool4.com
+  - name: tool5
+    type: api
+    config:
+      endpoint: https://api.tool5.com
+  - name: tool6
+    type: api
+    config:
+      endpoint: https://api.tool6.com
+  - name: tool7
+    type: api
+    config:
+      endpoint: https://api.tool7.com
+  - name: tool8
+    type: api
+    config:
+      endpoint: https://api.tool8.com
+
+toolsets:
+  - name: toolset1
+    tools:
+      - tool1
+      - tool2
+  - name: toolset2
+    tools:
+      - tool3
+      - tool4
+  - name: toolset3
+    tools:
+      - tool5
+      - tool6
+  - name: toolset4
+    tools:
+      - tool7
+      - tool8
+  - name: toolset5
+    tools:
+      - tool1
+      - tool3
+      - tool5
