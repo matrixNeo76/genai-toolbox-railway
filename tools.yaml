@@ -1,1 +1,116 @@
-tools.yaml configuration content
+# Configurazione genai-toolbox per Railway - Automation Stack 01
+# Connessioni ai servizi esistenti nel progetto
+
+# Sources: connessioni ai database
+sources:
+  # PostgreSQL - Memory Analytics Database
+  postgres-memory:
+    kind: postgres
+    host: ${POSTGRES_MEMORY_HOST}
+    port: ${POSTGRES_MEMORY_PORT}
+    database: ${POSTGRES_MEMORY_DATABASE}
+    user: ${POSTGRES_MEMORY_USER}
+    password: ${POSTGRES_MEMORY_PASSWORD}
+
+  # Redis - Cache e sessioni
+  redis-main:
+    kind: redis
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+
+  # FalkorDB - Graph Database
+  falkordb-main:
+    kind: redis
+    host: ${FALKOR_HOST}
+    port: ${FALKOR_PORT}
+    password: ${FALKOR_PASSWORD}
+
+# Tools: azioni disponibili per gli agenti
+tools:
+  # PostgreSQL Tools
+  postgres-health-check:
+    kind: postgres-sql
+    source: postgres-memory
+    description: Check PostgreSQL database connectivity and status
+    statement: SELECT 1 as status, NOW() as timestamp, version() as pg_version;
+
+  postgres-list-tables:
+    kind: postgres-sql
+    source: postgres-memory
+    description: List all tables in the PostgreSQL database
+    statement: |
+      SELECT table_schema, table_name, table_type
+      FROM information_schema.tables
+      WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+      ORDER BY table_schema, table_name;
+
+  postgres-table-info:
+    kind: postgres-sql
+    source: postgres-memory
+    description: Get detailed information about a specific table
+    parameters:
+      - name: table_name
+        type: string
+        description: Name of the table to inspect
+    statement: |
+      SELECT 
+        column_name, 
+        data_type, 
+        is_nullable,
+        column_default
+      FROM information_schema.columns
+      WHERE table_name = $1
+      ORDER BY ordinal_position;
+
+  # Redis Tools
+  redis-ping:
+    kind: redis-command
+    source: redis-main
+    description: Check Redis connectivity
+    command: PING
+
+  redis-info:
+    kind: redis-command
+    source: redis-main
+    description: Get Redis server information
+    command: INFO
+
+  # FalkorDB Tools
+  falkordb-ping:
+    kind: redis-command
+    source: falkordb-main
+    description: Check FalkorDB connectivity
+    command: PING
+
+# Toolsets: gruppi di tools per diversi use case
+toolsets:
+  # Toolset completo con tutti i database
+  all:
+    - postgres-health-check
+    - postgres-list-tables
+    - postgres-table-info
+    - redis-ping
+    - redis-info
+    - falkordb-ping
+  
+  # Solo PostgreSQL
+  postgres:
+    - postgres-health-check
+    - postgres-list-tables
+    - postgres-table-info
+  
+  # Solo Redis/Cache
+  cache:
+    - redis-ping
+    - redis-info
+  
+  # Solo Graph Database
+  graph:
+    - falkordb-ping
+  
+  # Diagnostica generale
+  diagnostics:
+    - postgres-health-check
+    - redis-ping
+    - falkordb-ping
