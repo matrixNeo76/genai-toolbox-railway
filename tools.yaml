@@ -12,19 +12,7 @@ sources:
     user: ${POSTGRES_MEMORY_USER}
     password: ${POSTGRES_MEMORY_PASSWORD}
 
-  # Redis - Cache e sessioni
-  redis-main:
-    kind: redis
-    address:
-      - ${REDIS_HOST}:${REDIS_PORT}
-    password: ${REDIS_PASSWORD}
 
-  # FalkorDB - Graph Database
-  falkordb-main:
-    kind: redis
-    address:
-      - ${FALKOR_HOST}:${FALKOR_PORT}
-    password: ${FALKOR_PASSWORD}
 
 # Tools: azioni disponibili per gli agenti
 tools:
@@ -63,54 +51,22 @@ tools:
       WHERE table_name = $1
       ORDER BY ordinal_position;
 
-  # Redis Tools
-  redis-ping:
-    kind: redis-command
-    source: redis-main
-    description: Check Redis connectivity
-    command: PING
 
-  redis-info:
-    kind: redis-command
-    source: redis-main
-    description: Get Redis server information
-    command: INFO
-
-  # FalkorDB Tools
-  falkordb-ping:
-    kind: redis-command
-    source: falkordb-main
-    description: Check FalkorDB connectivity
-    command: PING
 
 # Toolsets: gruppi di tools per diversi use case
 toolsets:
-  # Toolset completo con tutti i database
+  # Toolset con tutti i tools PostgreSQL
   all:
     - postgres-health-check
     - postgres-list-tables
     - postgres-table-info
-    - redis-ping
-    - redis-info
-    - falkordb-ping
   
-  # Solo PostgreSQL
+  # Solo PostgreSQL (stesso di all)
   postgres:
     - postgres-health-check
     - postgres-list-tables
     - postgres-table-info
   
-  # Solo Redis/Cache
-  cache:
-    - redis-ping
-    - redis-info
-  
-  # Solo Graph Database
-  graph:
-    - falkordb-ping
-  
   # Diagnostica generale
   diagnostics:
     - postgres-health-check
-    - redis-ping
-    - falkordb-ping
