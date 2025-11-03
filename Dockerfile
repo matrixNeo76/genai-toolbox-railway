@@ -1,23 +1,13 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18-alpine
+# Dockerfile semplificato per genai-toolbox su Railway
+FROM us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:0.18.0
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copia il file di configurazione tools.yaml
+# Le variabili d'ambiente saranno sostituite da Railway al runtime
+COPY tools.yaml /app/tools.yaml
 
-# Install dependencies
-RUN npm install
+EXPOSE 5000
 
-# Copy the rest of the application code
-COPY . .
-
-# Build the application (if applicable)
-RUN npm run build
-
-# Expose the port the app runs on
-EXPOSE 3000
-
-# Define the command to run the app
-CMD ["npm", "start"]
+# Avvia toolbox con il file di configurazione
+CMD ["toolbox", "--tools-file", "/app/tools.yaml"]
